@@ -2,15 +2,13 @@
 
 [![Gitter][gitter-picture]][gitter] ![py27][py27] ![py35][py35] [Chinese version][chinese-version]
 
-itchat is an open source api for WeChat, a commonly-used Chinese social networking app, you can easily access your personal wechat account through itchat in cmd.
+itchat is an open source api for WeChat, a commonly-used Chinese social networking app.
+
+Accessing your personal wechat account through itchat in python has never been easier.
 
 A wechat robot can handle all the basic messages with only less than 30 lines of codes.
 
 Now Wechat is an important part of personal life, hopefully this repo can help you extend your personal wechat account's functionality and enbetter user's experience with wechat.
-
-## Documents
-
-You may get the document of this api from [here][document].
 
 ## Installation
 
@@ -22,27 +20,57 @@ pip install itchat
 
 ## Simple uses
 
+With itchat, you only need to write this to reply personal text messages.
+
+```python
+import itchat
+
+@itcaht.msg_register(itchat.content.TEXT)
+def text_reply(msg):
+    itchat.send(msg['Text'], msg['FromUserName'])
+
+itchat.auto_login()
+itchat.run()
+```
+
+For more advanced uses you may continue on reading or browse the [document][document].
+
+## Have a try
+
+This QRCode is a wechat account based on the framework of [demo code][robot-source-code]. Seeing is believing, so have a try:)
+
+![QRCode][robot-qr]
+
+## Screenshots
+
+![file-autoreply][robot-demo-file] ![login-page][robot-demo-login]
+
+## Advanced uses
+
+### Message register of various types
+
 The following is a demo of how itchat is configured to fetch and reply daily information.
 
 ```python
 #coding=utf8
 import itchat, time
+from itchat.content import *
 
-@itchat.msg_register(['Text', 'Map', 'Card', 'Note', 'Sharing'])
+@itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING])
 def text_reply(msg):
     itchat.send('%s: %s' % (msg['Type'], msg['Text']), msg['FromUserName'])
 
-@itchat.msg_register(['Picture', 'Recording', 'Attachment', 'Video'])
+@itchat.msg_register([PICTURE, RECORDING, ATTACHMENT, VIDEO])
 def download_files(msg):
     msg['Text'](msg['FileName'])
     return '@%s@%s' % ({'Picture': 'img', 'Video': 'vid'}.get(msg['Type'], 'fil'), msg['FileName'])
 
-@itchat.msg_register('Friends')
+@itchat.msg_register(FRIENDS)
 def add_friend(msg):
     itchat.add_friend(**msg['Text']) # 该操作会自动将新好友的消息录入，不需要重载通讯录
     itchat.send_msg('Nice to meet you!', msg['RecommendInfo']['UserName'])
 
-@itchat.msg_register('Text', isGroupChat = True)
+@itchat.msg_register(TEXT, isGroupChat=True)
 def text_reply(msg):
     if msg['isAt']:
         itchat.send(u'@%s\u2005I received: %s' % (msg['ActualNickName'], msg['Content']), msg['FromUserName'])
@@ -50,8 +78,6 @@ def text_reply(msg):
 itchat.auto_login(True)
 itchat.run()
 ```
-
-## Advanced uses
 
 ### Command line QR Code
 
@@ -129,16 +155,6 @@ def download_files(msg):
     with open(msg['FileName'], 'wb') as f:
         f.write(msg['Text']())
 ```
-
-## Have a try
-
-This QRCode is a wechat account based on the framework of [demo code][robot-source-code]. Seeing is believing, so have a try:)
-
-![QRCode][robot-qr]
-
-## Screenshots
-
-![file-autoreply][robot-demo-file] ![login-page][robot-demo-login]
 
 ## FAQ
 

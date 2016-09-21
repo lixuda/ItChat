@@ -2,17 +2,13 @@
 
 [![Gitter][gitter-picture]][gitter] ![py27][py27] ![py35][py35] [English version][english-version]
 
-itchat是一个开源的微信个人号接口，使用他你可以轻松的通过命令行使用个人微信号。
+itchat是一个开源的微信个人号接口，使用python调用微信从未如此简单。
 
 使用不到三十行的代码，你就可以完成一个能够处理所有信息的微信机器人。
 
-当然，该api的使用远不止一个机器人。
+当然，该api的使用远不止一个机器人，更多的功能等着你来发现。
 
 如今微信已经成为了个人社交的很大一部分，希望这个项目能够帮助你扩展你的个人的微信号、方便自己的生活。
-
-## Documents
-
-你可以在[这里][document]获取api的使用帮助。
 
 ## Installation
 
@@ -24,27 +20,59 @@ pip install itchat
 
 ## Simple uses
 
+有了itchat，如果你想要回复发给自己的文本消息，只需要这样：
+
+```python
+import itchat
+
+@itcaht.msg_register(itchat.content.TEXT)
+def text_reply(msg):
+    itchat.send(msg['Text'], msg['FromUserName'])
+
+itchat.auto_login()
+itchat.run()
+```
+
+一些进阶应用可以在Advanced uses中看到，或者你也可以阅览[文档][document]。
+
+
+
+## Have a try
+
+这是一个基于这一项目的[开源小机器人][robot-source-code]，百闻不如一见，有兴趣可以尝试一下。
+
+![QRCode][robot-qr]
+
+## Screenshots
+
+![file-autoreply][robot-demo-file] ![login-page][robot-demo-login]
+
+## Advanced uses
+
+### 各类型消息的注册
+
 通过如下代码，微信已经可以就日常的各种信息进行获取与回复。
 
 ```python
 #coding=utf8
 import itchat, time
+from itchat.content import *
 
-@itchat.msg_register(['Text', 'Map', 'Card', 'Note', 'Sharing'])
+@itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING])
 def text_reply(msg):
     itchat.send('%s: %s' % (msg['Type'], msg['Text']), msg['FromUserName'])
 
-@itchat.msg_register(['Picture', 'Recording', 'Attachment', 'Video'])
+@itchat.msg_register([PICTURE, RECORDING, ATTACHMENT, VIDEO])
 def download_files(msg):
     msg['Text'](msg['FileName'])
     return '@%s@%s' % ({'Picture': 'img', 'Video': 'vid'}.get(msg['Type'], 'fil'), msg['FileName'])
 
-@itchat.msg_register('Friends')
+@itchat.msg_register(FRIENDS)
 def add_friend(msg):
     itchat.add_friend(**msg['Text']) # 该操作会自动将新好友的消息录入，不需要重载通讯录
     itchat.send_msg('Nice to meet you!', msg['RecommendInfo']['UserName'])
 
-@itchat.msg_register('Text', isGroupChat = True)
+@itchat.msg_register(TEXT, isGroupChat=True)
 def text_reply(msg):
     if msg['isAt']:
         itchat.send(u'@%s\u2005I received: %s' % (msg['ActualNickName'], msg['Content']), msg['FromUserName'])
@@ -52,8 +80,6 @@ def text_reply(msg):
 itchat.auto_login(True)
 itchat.run()
 ```
-
-## Advanced uses
 
 ### 命令行二维码
 
@@ -131,16 +157,6 @@ def download_files(msg):
     with open(msg['FileName'], 'wb') as f:
         f.write(msg['Text']())
 ```
-
-## Have a try
-
-这是一个基于这一项目的[开源小机器人][robot-source-code]，百闻不如一见，有兴趣可以尝试一下。
-
-![QRCode][robot-qr]
-
-## Screenshots
-
-![file-autoreply][robot-demo-file] ![login-page][robot-demo-login]
 
 ## FAQ
 
